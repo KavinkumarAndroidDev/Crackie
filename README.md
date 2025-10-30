@@ -38,7 +38,7 @@ This project showcases a modern Android development setup, built entirely with K
 1.  Clone the repository:
     
     ```sh
-    git clone https://github.com/your-username/fortune.git
+    git clone https://github.com/KavinkumarAndroidDev/Crackie.git
     ```
 
 2.  Open the project in the latest stable version of Android Studio.
