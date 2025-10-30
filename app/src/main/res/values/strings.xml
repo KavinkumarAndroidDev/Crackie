@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Fortune</string>
+    <string name="fortune_cookie_desc">A golden fortune cookie</string>
+</resources>
