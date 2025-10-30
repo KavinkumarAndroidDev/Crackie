@@ -4,11 +4,6 @@
 
 Fortune is a simple, beautiful Android application that delivers a new fortune every day. Built with modern Android technologies, it focuses on a polished and emotionally satisfying user experience, from the tactile cracking of the cookie to the magical reveal of a rare "Mystic" fortune.
 
-
-![Fortune App GIF](https://your-gif-url-here.com/fortune_animation.gif)
-
-*(Recommendation: Add a GIF of the cookie cracking and fortune reveal here!)*
-
 ---
 
 ## ✨ Features
