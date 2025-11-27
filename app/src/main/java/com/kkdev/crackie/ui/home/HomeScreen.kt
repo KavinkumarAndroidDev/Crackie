@@ -232,7 +232,7 @@ fun AppHeader(uiState: HomeUiState) {
 fun shareFortune(context: Context, fortuneText: String) {
     val sendIntent: Intent = Intent().apply {
         action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_TEXT, "Here's my fortune from Fortune: \n\n\"$fortuneText\"")
+        putExtra(Intent.EXTRA_TEXT, "Check out my fortune from the Fortune app:\n\n\"$fortuneText\"")
         type = "text/plain"
     }
     val shareIntent = Intent.createChooser(sendIntent, null)
@@ -477,6 +477,7 @@ fun CooldownView(viewModel: HomeViewModel) {
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
         )
+        FactCard()
     }
 }
 
@@ -712,5 +713,35 @@ suspend fun animatePiece(state: PieceState, targetX: Float, targetY: Float, targ
         launch { state.y.animateTo(targetY, spring(0.7f, 100f)) }
         launch { state.rotation.animateTo(targetRotation, tween(duration)) }
         launch { delay(duration / 3L); state.alpha.animateTo(0f, tween(duration * 2 / 3)) }
+    }
+}
+
+@Composable
+fun FactCard() {
+    val fact = remember { FortuneFacts.allFacts.random() }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Did you know?",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = fact,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                lineHeight = 20.sp
+            )
+        }
     }
 }

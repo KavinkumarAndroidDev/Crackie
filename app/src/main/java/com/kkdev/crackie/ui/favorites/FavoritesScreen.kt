@@ -1,12 +1,25 @@
 package com.kkdev.crackie.ui.favorites
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,6 +35,8 @@ import com.kkdev.crackie.db.Fortune
 import com.kkdev.crackie.db.FortuneRarity
 import com.kkdev.crackie.ui.home.AnimatedTiledBackground
 import com.kkdev.crackie.ui.home.HomeViewModel
+import com.kkdev.crackie.ui.home.SortBy
+import com.kkdev.crackie.ui.home.SortOrder
 import com.kkdev.crackie.ui.theme.GoldenGlow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +46,8 @@ fun FavoritesScreen(
     onNavigateBack: () -> Unit
 ) {
     val favoriteFortunes by viewModel.favoriteFortunes.collectAsState(initial = emptyList())
+    val sortBy by viewModel.sortBy.collectAsState()
+    val sortOrder by viewModel.sortOrder.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -71,6 +88,7 @@ fun FavoritesScreen(
                     .padding(it),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                SortOptions(sortBy = sortBy, sortOrder = sortOrder, onSortByChange = { viewModel.setSortBy(it) }, onSortOrderChange = { viewModel.setSortOrder(it) })
                 if (favoriteFortunes.isEmpty()) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -96,6 +114,81 @@ fun FavoritesScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SortOptions(
+    sortBy: SortBy,
+    sortOrder: SortOrder,
+    onSortByChange: (SortBy) -> Unit,
+    onSortOrderChange: (SortOrder) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            "Sort by",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        val chipColors = FilterChipDefaults.filterChipColors(
+            containerColor = Color.Transparent,
+            labelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+            selectedLabelColor = MaterialTheme.colorScheme.primary
+        )
+
+        FilterChip(
+            selected = sortBy == SortBy.DATE,
+            onClick = { onSortByChange(SortBy.DATE) },
+            label = { Text("Date") },
+            colors = chipColors,
+            border = BorderStroke(
+                width = 1.dp,
+                color = if (sortBy == SortBy.DATE) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                }
+            )
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        FilterChip(
+            selected = sortBy == SortBy.RARITY,
+            onClick = { onSortByChange(SortBy.RARITY) },
+            label = { Text("Rarity") },
+            colors = chipColors,
+            border = BorderStroke(
+                width = 1.dp,
+                color = if (sortBy == SortBy.RARITY) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                }
+            )
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = {
+            val newOrder = if (sortOrder == SortOrder.ASC) SortOrder.DESC else SortOrder.ASC
+            onSortOrderChange(newOrder)
+        }) {
+            val sortOrderText = when (sortBy) {
+                SortBy.DATE -> if (sortOrder == SortOrder.DESC) "Newest" else "Oldest"
+                SortBy.RARITY -> if (sortOrder == SortOrder.DESC) "Rarest" else "Common"
+            }
+            Text(sortOrderText)
+            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+            Icon(
+                imageVector = if (sortOrder == SortOrder.DESC) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
+                contentDescription = "Sort order is ${if (sortOrder == SortOrder.DESC) "Descending" else "Ascending"}"
+            )
         }
     }
 }

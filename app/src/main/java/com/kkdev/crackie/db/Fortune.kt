@@ -13,5 +13,6 @@ data class Fortune(
     val text: String,
     val rarity: FortuneRarity = FortuneRarity.COMMON,
     var wasSeen: Boolean = false,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    var dateAdded: Long = 0L
 )

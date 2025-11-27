@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
@@ -20,6 +21,16 @@ sealed class HomeUiState {
     data object Loading : HomeUiState()
     data object Cooldown : HomeUiState()
     data class ReadyToCrack(val fortune: Fortune) : HomeUiState()
+}
+
+enum class SortBy {
+    DATE,
+    RARITY
+}
+
+enum class SortOrder {
+    ASC,
+    DESC
 }
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -38,11 +49,32 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _shouldShowIntro = MutableStateFlow(false)
     val shouldShowIntro = _shouldShowIntro.asStateFlow()
 
-    val favoriteFortunes = db.fortuneDao().getFavoriteFortunes()
+    private val _sortBy = MutableStateFlow(SortBy.DATE)
+    val sortBy = _sortBy.asStateFlow()
+
+    private val _sortOrder = MutableStateFlow(SortOrder.DESC)
+    val sortOrder = _sortOrder.asStateFlow()
+
+    val favoriteFortunes = _sortBy.flatMapLatest { sortBy ->
+        _sortOrder.flatMapLatest { sortOrder ->
+            when (sortBy) {
+                SortBy.DATE -> if (sortOrder == SortOrder.DESC) db.fortuneDao().getFavoriteFortunesByDateDesc() else db.fortuneDao().getFavoriteFortunesByDateAsc()
+                SortBy.RARITY -> if (sortOrder == SortOrder.DESC) db.fortuneDao().getFavoriteFortunesByRarityDesc() else db.fortuneDao().getFavoriteFortunesByRarityAsc()
+            }
+        }
+    }
 
     init {
         checkFirstLaunch()
         checkUserState()
+    }
+
+    fun setSortBy(sortBy: SortBy) {
+        _sortBy.value = sortBy
+    }
+
+    fun setSortOrder(sortOrder: SortOrder) {
+        _sortOrder.value = sortOrder
     }
 
     private fun checkFirstLaunch() {
@@ -119,7 +151,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleFavorite(fortune: Fortune) {
         viewModelScope.launch {
-            val updatedFortune = fortune.copy(isFavorite = !fortune.isFavorite)
+            val updatedFortune = fortune.copy(
+                isFavorite = !fortune.isFavorite,
+                dateAdded = if (!fortune.isFavorite) System.currentTimeMillis() else fortune.dateAdded
+            )
             db.fortuneDao().updateFortune(updatedFortune)
             _uiState.value = HomeUiState.ReadyToCrack(updatedFortune)
         }

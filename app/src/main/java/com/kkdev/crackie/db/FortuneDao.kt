@@ -21,8 +21,17 @@ interface FortuneDao {
     @Query("SELECT COUNT(id) FROM fortunes")
     suspend fun getFortuneCount(): Int
 
-    @Query("SELECT * FROM fortunes WHERE isFavorite = 1 ORDER BY id DESC")
-    fun getFavoriteFortunes(): Flow<List<Fortune>>
+    @Query("SELECT * FROM fortunes WHERE isFavorite = 1 ORDER BY dateAdded ASC")
+    fun getFavoriteFortunesByDateAsc(): Flow<List<Fortune>>
+
+    @Query("SELECT * FROM fortunes WHERE isFavorite = 1 ORDER BY dateAdded DESC")
+    fun getFavoriteFortunesByDateDesc(): Flow<List<Fortune>>
+
+    @Query("SELECT * FROM fortunes WHERE isFavorite = 1 ORDER BY rarity ASC")
+    fun getFavoriteFortunesByRarityAsc(): Flow<List<Fortune>>
+
+    @Query("SELECT * FROM fortunes WHERE isFavorite = 1 ORDER BY rarity DESC")
+    fun getFavoriteFortunesByRarityDesc(): Flow<List<Fortune>>
 
     @Query("UPDATE fortunes SET wasSeen = 0")
     suspend fun resetSeenFortunes()

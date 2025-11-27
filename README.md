@@ -12,7 +12,8 @@ Fortune is a simple, beautiful Android application that delivers a new fortune e
 *   **Tactile Cracking Experience**: Crack open your cookie with a series of taps, complete with satisfying sounds, haptic feedback, and a delightful explosion animation.
 *   **Fortune Rarity System**: Fortunes come in three rarities: **Common**, **Golden**, and the elusive **Mystic**. Each rarity has a unique, animated background to make the reveal feel special.
 *   **Save Your Favorites**: Found a piece of wisdom that resonates with you? Save it to your personal collection with a single tap.
-*   **Favorites Screen**: Browse all your saved fortunes in a dedicated, beautifully styled list.
+*   **Advanced Sorting for Favorites**: Your saved fortunes can be sorted by the date they were added or by their rarity, making it easy to find the messages that matter most.
+*   **Engaging Cooldown Screen**: The 24-hour waiting period is now a fun and educational experience. A beautifully styled card displays random fun facts and origin stories about fortune cookies.
 *   **Share with Friends**: Easily share your daily fortune with friends through any messaging or social media app.
 *   **Daily Notifications**: Receive a gentle reminder when your next fortune cookie is ready to be opened.
 *   **Endless Content**: The app ensures you never get a repeat fortune until you've seen them all. Once the list is exhausted, it resets for a fresh cycle.

@@ -21,7 +21,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,6 +37,9 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -70,9 +73,4 @@ dependencies {
 
     // WorkManager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-
-    // Testing dependencies
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-    testImplementation("io.mockk:mockk:1.13.3")
 }

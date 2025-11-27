@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.work.WorkManager
 import com.kkdev.crackie.db.Fortune
 import com.kkdev.crackie.db.FortuneDao
@@ -12,7 +14,6 @@ import com.kkdev.crackie.db.FortuneRarity
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -25,8 +26,11 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 @ExperimentalCoroutinesApi
+@RunWith(RobolectricTestRunner::class)
 class HomeViewModelTest {
 
     @get:Rule
@@ -35,33 +39,34 @@ class HomeViewModelTest {
     private lateinit var viewModel: HomeViewModel
     private val testDispatcher = StandardTestDispatcher()
 
-    private val mockApplication: Application = mockk(relaxed = true)
-    private val mockContext: Context = mockk(relaxed = true)
-    private val mockPrefs: SharedPreferences = mockk(relaxed = true)
-    private val mockEditor: SharedPreferences.Editor = mockk(relaxed = true)
-    private val mockDatabase: FortuneDatabase = mockk(relaxed = true)
-    private val mockFortuneDao: FortuneDao = mockk(relaxed = true)
-    private val mockWorkManager: WorkManager = mockk(relaxed = true)
+    private lateinit var mockApplication: Application
+    private lateinit var mockContext: Context
+    private lateinit var mockPrefs: SharedPreferences
+    private lateinit var mockEditor: SharedPreferences.Editor
+    private lateinit var db: FortuneDatabase
+    private lateinit var fortuneDao: FortuneDao
+    private lateinit var mockWorkManager: WorkManager
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
-        every { mockApplication.applicationContext } returns mockContext
-        every { mockContext.getSharedPreferences(any(), any()) } returns mockPrefs
-        every { mockPrefs.edit() } returns mockEditor
+        mockApplication = ApplicationProvider.getApplicationContext<Application>()
+        mockContext = mockApplication.applicationContext
+        mockPrefs = mockContext.getSharedPreferences("fortune_prefs", Context.MODE_PRIVATE)
+        mockEditor = mockPrefs.edit()
 
-        // --- FIX: Correctly mock the static methods ---
-        mockkStatic(FortuneDatabase::class)
-        every { FortuneDatabase.getDatabase(any()) } returns mockDatabase
-        every { mockDatabase.fortuneDao() } returns mockFortuneDao
+        db = Room.inMemoryDatabaseBuilder(
+            mockContext, FortuneDatabase::class.java
+        ).allowMainThreadQueries().build()
+        fortuneDao = db.fortuneDao()
 
-        mockkStatic(WorkManager::class)
-        every { WorkManager.getInstance(any()) } returns mockWorkManager
+        mockWorkManager = mockk(relaxed = true)
     }
 
     @After
     fun tearDown() {
+        db.close()
         Dispatchers.resetMain()
     }
 
@@ -103,7 +108,8 @@ class HomeViewModelTest {
         val aDayAgo = System.currentTimeMillis() - twentyFourHours
         coEvery { mockPrefs.getLong("last_crack_time", 0) } returns aDayAgo
         coEvery { mockPrefs.getBoolean("is_first_launch", true) } returns false
-        coEvery { mockFortuneDao.getUnseenFortune() } returns Fortune(text = "Test", rarity = FortuneRarity.COMMON)
+        val fortune = Fortune(text = "Test", rarity = FortuneRarity.COMMON)
+        fortuneDao.insertAll(listOf(fortune))
 
         viewModel = HomeViewModel(mockApplication)
         advanceUntilIdle()

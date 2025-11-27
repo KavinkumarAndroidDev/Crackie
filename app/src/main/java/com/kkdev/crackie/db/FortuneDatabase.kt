@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Fortune::class], version = 1, exportSchema = false)
+@Database(entities = [Fortune::class], version = 2, exportSchema = false)
 abstract class FortuneDatabase : RoomDatabase() {
 
     abstract fun fortuneDao(): FortuneDao
@@ -25,7 +26,6 @@ abstract class FortuneDatabase : RoomDatabase() {
                     FortuneDatabase::class.java,
                     "fortune_database"
                 )
-                    .fallbackToDestructiveMigration()
                     .addCallback(FortuneDatabaseCallback(context))
                     .build()
                 INSTANCE = instance
